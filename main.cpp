@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream> // for dat file
 #include <cctype> // for toupper, isalpha
-#include "student.h"
+#include "Student.h"
 using namespace std;
 
 void menu();
@@ -13,8 +13,8 @@ Student roster[MAX_STUDENTS];
 int rosterSize = 0;
 
 int classSize = 0;
-int num_Of_Programs, num_Of_Tests, num_Of_Finals = 0;
-double programsW, testsW, finalsW = 0; //W for weight
+int programs = 0, tests = 0, finals = 0;
+int programsW = 0, testsW = 0, finalsW = 0; //W for weight
 
 const char* GRADES_DAT = "Grades.dat";
 const char* GRADES_OUT = "Grades.out";
@@ -45,7 +45,7 @@ void menu()
 {
     //Print Menu
     cout << "================ GRADE BOOK ================" << endl;
-    cout << "S). Set Up New Semester"
+    cout << "S). Set Up New Semester" << endl
     << "A). Add A Student" << endl
     << "P). Record Programming Assignment Grade for All Students" << endl
     << "T). Record Test Grade for All Students" << endl
@@ -54,13 +54,13 @@ void menu()
     << "G). Calculate Final Grade" << endl
     << "O). Output Grade Data" << endl
     << "Q). Quit." << endl;
-    
+    cout << "Enter choice: ";
     while (true){ //While loop incase of input error
     
         string input;
         cin >> input;
         
-        cout << "Enter choice: ";
+        
         //TEST RUNS 1-3 LISTED BELOW
        
         // 1. If the string is longer than 1 character, it takes the first letter of the string.
@@ -115,35 +115,36 @@ void menu()
 // Functions for Choices
 void setUpNewSemester() // S - Call function in case/switch
 {
+
     cout << "Begin Setup for new semester!" << endl;
     //Gather number of programming assignments
     do {
       cout << "Enter the number of programming assignments for this semester: ";
-      cin >> num_Of_Programs;
-      if (num_Of_Programs > 6) {
+      cin >> programs;
+      if (programs > 6) {
         cout << "You've exceeded the max limit of assignments.\n";
       }
-    } while (num_Of_Programs > 6);
+    } while (programs > 6);
 
     // Gather number of tests
     do {
       cout << "Enter the number of tests for this semester: ";
-      cin >> num_Of_Tests;
-      if (num_Of_Tests > 4) {
+      cin >> tests;
+      if (tests > 4) {
         cout << "You've exceeded the max limit of tests.\n";
       }
-    } while (num_Of_Tests > 4);
+    } while (tests > 4);
 
     // Gather number of final exams
     do {
       cout << "Enter the number of final exams for this semester: ";
-      cin >> num_Of_Finals;
-      if (num_Of_Finals > 1) {
+      cin >> finals;
+      if (finals > 1) {
         cout << "You've exceeded the max limit of final exams.\n";
       }
-    } while (num_Of_Finals > 1);
+    } while (finals > 1);
     
-    do {
+    do{
         cout << "Enter program weight %: ";
         cin >> programsW;
         cout << "Enter tests weight %: ";
@@ -151,12 +152,13 @@ void setUpNewSemester() // S - Call function in case/switch
         cout << "Enter finals weight %: ";
         cin >> finalsW;
         
-        if (programsW + testsW + finalsW != 100)
+        if ((programsW + testsW + finalsW) != 100)
         {
             cout << "ERROR! Total grade weight must be equal to 100." << endl;
         }
         
-    } while (programsW + testsW + finalsW != 100);
+
+    } while ((programsW + testsW + finalsW) != 100);
 }
 void addStudent() // A - Call function in case/switch
 {
@@ -178,7 +180,7 @@ void addStudent() // A - Call function in case/switch
 void recordProgramGrade() // P - Call function in case/switch
 {
     int p; //Programming index - Select which programming assignment
-    cout << "Enter programming assignment number: ";
+    cout << "Enter program index (0 - " << programs-1 << "): ";
     cin >> p;
     
     //Traverse the list, assign grade for each student
@@ -193,7 +195,7 @@ void recordProgramGrade() // P - Call function in case/switch
 void recordTestGrade() // T - Call function in case/switch
 {
     int t; //Tests index - Select which test
-    cout << "Enter test number: ";
+    cout << "Enter test index (0 - " << tests-1 << "): ";
     cin >> t;
     
     //Traverse the list, assign grade for each student
@@ -282,9 +284,7 @@ void calculateFinal() // G - Call function in case/switch
 {
     for (int i = 0; i < rosterSize; i++) //Traverse through Student list
     {
-        double avgProgramGrade = roster[i].calcProgramAverage(num_Of_Programs);
-        double avgTestGrade = roster[i].calcTestAverage(num_Of_Tests);
-        double finalGrade = roster[i].calcFinalGrade(programsW, testsW, finalsW, avgProgramGrade, avgTestGrade);
+        double finalGrade = roster[i].calcFinalGrade(programsW, testsW, finalsW, programs, tests);
         cout << roster[i].getLastName() << ", " << roster[i].getFirstName()
         << " (Final Grade): " << finalGrade << endl;
     }
@@ -297,7 +297,7 @@ void outputGrades() // O - Call function in case/switch
     for (int i = 0; i < rosterSize; i++)
     {
         //W = weight
-        roster[i].printInfo(out, num_Of_Programs, num_Of_Tests, num_Of_Finals,
+        roster[i].printInfo(out, programs, tests, finals,
                             programsW, testsW, finalsW);
     }
     
@@ -309,20 +309,19 @@ void outputGrades() // O - Call function in case/switch
 void openDat()
 {
     ifstream inputFile(GRADES_DAT);
-    inputFile >> num_Of_Programs >> num_Of_Tests >> num_Of_Finals >> programsW >> testsW >> finalsW >> rosterSize;
+    inputFile >> programs >> tests >> finals >> programsW >> testsW >> finalsW >> rosterSize;
     
     for (int i = 0; i < rosterSize; i++)
     {
-        roster[i].readDat(inputFile, num_Of_Programs, num_Of_Tests, num_Of_Finals);
+        roster[i].readDat(inputFile, programs, tests, finals);
     }
 }
 void saveDat()
 {
     ofstream outputFile(GRADES_DAT);
-    outputFile << num_Of_Programs << num_Of_Tests << num_Of_Finals << programsW << testsW << finalsW << rosterSize;
-    
+    outputFile << programs << " " << tests << " " << finals << " " << programsW << " " << testsW << " " << finalsW << " " << rosterSize << endl;
     for (int i = 0; i < rosterSize; i++)
     {
-        roster[i].writeDat(outputFile, num_Of_Programs, num_Of_Tests, num_Of_Finals);
+        roster[i].writeDat(outputFile, programs, tests, finals);
     }
 }
