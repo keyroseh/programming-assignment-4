@@ -1,4 +1,4 @@
-#include "student.h"
+#include "Student.h"
 #include <iostream>
 using namespace std;
 
@@ -60,12 +60,7 @@ int Student::getStudentNumber() const
     return studentNumber;
 }
 
-
-
-
 // P). Program Grades
-
-
 void Student::setProgramGrade(int i, double grade) {
     programs[i-1] = grade; // if programming assingment is i, index is i-1
 }
@@ -84,7 +79,7 @@ void Student::setFinalExamGrade(double grade) {
 // Calculations
 
 double Student::calcProgramAverage(int num_Of_Programs) const {
-    double sum; // holding sum of all grades
+    double sum = 0.0; // holding sum of all grades
     for (int i = 0; i < num_Of_Programs; i++) {
         sum += programs[i];
     }
@@ -92,8 +87,8 @@ double Student::calcProgramAverage(int num_Of_Programs) const {
 }
 
 double Student::calcTestAverage(int num_Of_Tests) const {
-    double sum; // holding sum of all grades
-    for(int i = 0; i < num_Of_Tests; i++) { 
+    double sum = 0.0; // holding sum of all grades
+    for(int i = 0; i < num_Of_Tests; i++) {
         sum += tests[i];
     }
     return sum / num_Of_Tests; // returning avg grade of all tests
@@ -111,28 +106,80 @@ double Student::calcFinalGrade(double programmingW, double testsW, double finalW
     double finalExamGrade = finalW * finalExam;
     // returning sum of grade for all categories
     return finalTestGrade + finalProgrammingGrade + finalExamGrade;
-
-    
 }
-
-/*
-
- ===============NEED HELP FINISHING THIS PART====================
-*/
 // O). Output Student/Grade Data
-void Student::printInfo(ofstream& out, int programs, int tests, int finals, int programmingW, int testsW, int finalW) const {
-    
+void Student::printInfo(ostream& out, int num_Of_Programs, int num_Of_Tests, int num_Of_Finals, int programmingW, int testsW, int finalW) const
+{
+    out << lastName << ", " << firstName << " ID #" << studentNumber << endl;
+
+    // Programs
+    out << "Programs: ";
+    for (int i = 0; i < num_Of_Programs; i++) {
+        out << programs[i] << " ";
+    }
+    out << endl;
+
+    // Tests
+    out << "Tests: ";
+    for (int i = 0; i < num_Of_Tests; i++) {
+        out << tests[i] << " ";
+    }
+    out << endl;
+
+    // Final
+    if (num_Of_Finals > 0) {
+        out << "Final Exam: " << finalExam << endl;
+    }
+
+    // Weighted Final Grade
+    double avgProgramming = (num_Of_Programs > 0) ? calcProgramAverage(num_Of_Programs) : 0.0;
+    double avgTest = (num_Of_Tests > 0) ? calcTestAverage(num_Of_Tests) : 0.0;
+    double finalGrade = calcFinalGrade(programmingW, testsW, finalW, avgTest, avgProgramming);
+    out << "Weighted Final: " << finalGrade << endl << endl;
 }
 
-// Q). Quit (in main), no code required 
+// ---- Persistence ----
+void Student::writeDat(ostream& out, int num_Of_Programs, int num_Of_Tests, int num_Of_Finals)
+{
+    // Write identifiers
+    out << lastName << " " << firstName << " " << studentNumber << " ";
 
-//File functions
-void Student::writeDat(ofstream& out, int programs, int tests, int finals) const {
-    
+    // Write program grades
+    for (int i = 0; i < num_Of_Programs; i++) {
+        out << programs[i] << " ";
+    }
+
+    // Write test grades
+    for (int i = 0; i < num_Of_Tests; i++) {
+        out << tests[i] << " ";
+    }
+
+    // Write final
+    if (num_Of_Finals > 0) {
+        out << finalExam << " ";
+    }
+
+    out << endl;
 }
 
-void Student::readDat(ifstream& in, int programs, int tests, int finals) const {
-    
+void Student::readDat(istream& in, int num_Of_Programs, int num_Of_Tests, int num_Of_Finals) {
+    // Read identifiers
+    in >> lastName >> firstName >> studentNumber;
+
+    // Read program grades
+    for (int i = 0; i < num_Of_Programs; i++) {
+        in >> programs[i];
+    }
+
+    // Read test grades
+    for (int i = 0; i < num_Of_Tests; i++) {
+        in >> tests[i];
+    }
+
+    // Read final
+    if (num_Of_Finals > 0) {
+        in >> finalExam;
+    }
 }
 
 
